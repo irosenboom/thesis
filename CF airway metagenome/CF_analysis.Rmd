@@ -1,0 +1,154 @@
+---
+title: "CF_analysis"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r}
+
+# clean global R environment
+rm(list = ls())
+```
+
+
+#load files
+```{r}
+
+RPMM_CF <- read_delim("CF_RPMM_wochenende.rep.us.raspir.merged.taxonomy.csv", 
+    ";", escape_double = FALSE, trim_ws = TRUE)
+
+RPMM_CF <- data.frame(RPMM_CF)
+
+rownames(RPMM_CF) <- RPMM_CF$species
+RPMM_CF$species <- NULL
+
+RPMM_CF_t <- data.frame(t(RPMM_CF))
+
+
+CF_metadata <- read_excel("CF_metadata.xlsx")
+CF_metadata <- data.frame(CF_metadata)
+
+```
+
+#make relative table
+```{r}
+
+CF_rel_t <- make_relative(as.matrix(RPMM_CF_t))
+CF_rel_t <- data.frame(CF_rel_t)
+
+CF_rel <- data.frame(t(CF_rel_t))
+
+```
+
+#make subgroups for heatmaps
+```{r}
+list_HI <- c("MPIAM10_1_S_Jena14", "MPIAM8_1_S_Jena24", "MPSBM4_1_S_MBCF60",
+"MPSBM4_2_S_Jena99")
+
+list_PA <- c("MPIAM5_1_S_MBCF10", "MPIAM7_1_S_MBCF9", "MPIAW4_1_S_MBCF61", 
+"MPIBM1_1_S_MBCF19", "MPIBM1_3_S_MBCF49", "MPIBM1_4_S_MBCF55",
+"MPICM2_1_S_MBCF41", "MPICM3_1_S_Jena164", "MPICM4_1_S_Jena30",
+"MPICM5_1_S_Jena111", "MPICW3_1_S_MBCF29", "MPICW7_1_S_Jena100",
+"MPSCW1_3_S_MBCF47", "MPSCW1_4_S_Jena146B", "MPSCW2_1_S_MBCF68")
+
+list_SA <- c("MPIAM1_2_S_MBCF11", "MPIAM1_4_S_MBCF18", "MPIAM2_3_S_MBCF127", 
+"MPIAM3_1_S_MBCF66", "MPIAM4_1_S_MBCF37", "MPIAM6_2_S_Jena23", 
+"MPIAW12_1_S_MBCF129", "MPIBM6_2_S_Jena112", "MPIBW1_1_S_MBCF59",
+"MPICW5_1_S_MBCF53", "MPICW6_1_S_Jena16", "MPSAW2_4_S_MBCF52",
+"MPSAW2_7_S_Jena11", "MPSBW2_2_S_Jena31", "MPSCM3_1_S_Jena28")
+
+list_PA_SA <- c("MPIAM5_5_S_MBCF73", "MPIAM5_6_S_Jena17", "MPIAM7_2_S_MBCF16", 
+"MPIAM7_3_S_MBCF27", "MPIAM7_4_S_MBCF45", "MPIAM7_5_S_MBCF63", "MPIAM7_6_S_Jena13",
+"MPIAM7_7_S_Jena22", "MPIBM5_1_S_Jena165", "MPIBM6_1_S_Jena25",
+"MPICW1_1_S_MBCF50", "MPICW1_2_S_Jena27", "MPSBM2_1_S_MBCF33")
+
+list_SM <- c("MPIAM4_3_S_MBCF70", "MPIAW2_1_S_MBCF64")
+
+list_SM_SA <- c("MPIAM4_2_S_MBCF58", "MPIAW10_1_S_Jena98", "MPIAW10_2_S_Jena147B",
+"MPIBW1_2_S_MBCF65")
+
+list_PA_SM <- c("MPICM6_1_S_MBCF54", "MPICW4_1_S_MBCF46", "MPICW4_2_S_Jena21",
+"MPICW4_3_S_Jena101")
+
+list_commensals <- c("MPIAM1_3_S_Jena148", "MPIAM2_1_S_MBCF48", "MPIAM9_1_S_Jena29",
+"MPIAW8_1_S_Jena110", "MPSAM1_2_S_MBCF15", "MPSAM1_3_S_MBCF38", 
+"MPSAM1_4_S_MBCF51", "MPSAM1_5_S_MBCF62", "MPSAM1_7_S_Jena20", 
+"MPSAM5_2_S_Jena26", "MPSAW1_4_S_MBCF17", "MPSAW2_8_S_Jena19",
+"MPSBW1_1_S_MBCF21", "MPSBW1_3_S_MBCF42")
+
+list_PM <- c("MPICM1_3_S_MBCF36", "MPICW2_3_S_MBCF32")
+
+
+
+CF_commensals <- CF_rel[, which((names(CF_rel) %in% list_commensals)==TRUE)]
+
+CF_HI <- CF_rel[, which((names(CF_rel) %in% list_HI)==TRUE)]
+
+CF_PA <- CF_rel[, which((names(CF_rel) %in% list_PA)==TRUE)]
+
+CF_SA <- CF_rel[, which((names(CF_rel) %in% list_SA)==TRUE)]
+
+CF_PA_SA <- CF_rel[, which((names(CF_rel) %in% list_PA_SA)==TRUE)]
+
+CF_PA_SM <- CF_rel[, which((names(CF_rel) %in% list_PA_SM)==TRUE)]
+
+CF_PM <- CF_rel[, which((names(CF_rel) %in% list_PM)==TRUE)]
+
+CF_SM <- CF_rel[, which((names(CF_rel) %in% list_SM)==TRUE)]
+
+CF_SM_SA <- CF_rel[, which((names(CF_rel) %in% list_SM_SA)==TRUE)]
+
+
+#write tables
+
+write.table(CF_commensals, file="CF_commensals.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_HI, file="CF_HI.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_PA, file="CF_PA.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_SA, file="CF_SA.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_PA_SA, file="CF_PA_SA.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_PA_SM, file="CF_PA_SM.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_PM, file="CF_PM.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_SM, file="CF_SM.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_SM_SA, file="CF_SM_SA.csv", sep=";", col.names = TRUE, row.names = TRUE)
+
+
+#RPMM subsets
+
+CF_RPMM_commensals <- RPMM_CF[, which((names(RPMM_CF) %in% list_commensals)==TRUE)]
+
+CF_RPMM_HI <- RPMM_CF[, which((names(RPMM_CF) %in% list_HI)==TRUE)]
+
+CF_RPMM_PA <- RPMM_CF[, which((names(RPMM_CF) %in% list_PA)==TRUE)]
+
+CF_RPMM_SA <- RPMM_CF[, which((names(RPMM_CF) %in% list_SA)==TRUE)]
+
+CF_RPMM_PA_SA <- RPMM_CF[, which((names(RPMM_CF) %in% list_PA_SA)==TRUE)]
+
+CF_RPMM_PA_SM <- RPMM_CF[, which((names(RPMM_CF) %in% list_PA_SM)==TRUE)]
+
+CF_RPMM_PM <- RPMM_CF[, which((names(RPMM_CF) %in% list_PM)==TRUE)]
+
+CF_RPMM_SM <- RPMM_CF[, which((names(RPMM_CF) %in% list_SM)==TRUE)]
+
+CF_RPMM_SM_SA <- RPMM_CF[, which((names(RPMM_CF) %in% list_SM_SA)==TRUE)]
+
+#write tables
+
+write.table(CF_RPMM_commensals, file="CF_RPMM_commensals.csv", sep=";", 
+            col.names = TRUE, row.names = TRUE)
+write.table(CF_RPMM_HI, file="CF_RPMM_HI.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_RPMM_PA, file="CF_RPMM_PA.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_RPMM_SA, file="CF_RPMM_SA.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_RPMM_PA_SA, file="CF_RPMM_PA_SA.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_RPMM_PA_SM, file="CF_RPMM_PA_SM.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_RPMM_PM, file="CF_RPMM_PM.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_RPMM_SM, file="CF_RPMM_SM.csv", sep=";", col.names = TRUE, row.names = TRUE)
+write.table(CF_RPMM_SM_SA, file="CF_RPMM_SM_SA.csv", sep=";", col.names = TRUE, row.names = TRUE)
+
+
+```
+
+
+
